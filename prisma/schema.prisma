@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model whiteListedDomain {
+  id        String   @id @unique @default(cuid())
+  domain    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Partners {
+  id                String              @id @unique @default(cuid())
+  name              String              @unique
+  key               String              @unique
+  webhook           String?
+  GeneratedUrl      GeneratedUrl[]
+  balances          PartnerBalance[]
+  PartnerBalanceLog PartnerBalanceLog[]
+}
+
+model Country {
+  id                String              @id @unique @default(cuid())
+  name              String?
+  currency_symbol   String
+  country_symbol    String?
+  image             String?
+  PartnerBalance    PartnerBalance[]
+  PartnerBalanceLog PartnerBalanceLog[]
+}
+
+model GamesRecord {
+  id            String           @id @unique @default(uuid())
+  gameId        String           @unique
+  result        GamesResultType?
+  status        status
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+  gameNumber    Int              @default(0)
+  isOpenBetting Boolean          @default(true)
+}
+
+model PartnerBalance {
+  id         String    @id @unique @default(cuid())
+  balance    Int
+  partnersId String?
+  countryId  String
+  country    Country   @relation(fields: [countryId], references: [id])
+  Partners   Partners? @relation(fields: [partnersId], references: [id])
+
+  @@index([countryId], map: "PartnerBalance_countryId_fkey")
+  @@index([partnersId], map: "PartnerBalance_partnersId_fkey")
+}
+
+model PartnerBalanceLog {
+  id         String         @id @unique @default(cuid())
+  amount     Int
+  partnersId String
+  countryId  String
+  type       BalanceLogType
+  created_at DateTime       @default(now())
+  country    Country        @relation(fields: [countryId], references: [id])
+  Partners   Partners       @relation(fields: [partnersId], references: [id])
+
+  @@index([countryId], map: "PartnerBalanceLog_countryId_fkey")
+  @@index([partnersId], map: "PartnerBalanceLog_partnersId_fkey")
+}
+
+model ManagementUser {
+  id        String              @id @unique
+  email     String
+  password  String
+  role      ManagementUser_role
+  createdAt DateTime            @default(now())
+  updatedAt DateTime
+}
+
+model GeneratedUrl {
+  id         String    @id @unique
+  params     String    @db.LongText
+  validUntil DateTime
+  alreadyUse Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  partnersId String?
+  Partners   Partners? @relation(fields: [partnersId], references: [id])
+
+  @@index([partnersId], map: "GeneratedUrl_partnersId_fkey")
+}
+
+enum ManagementUser_role {
+  ADMIN
+  ASSISTANT
+}
+
+enum GamesResultType {
+  wala
+  meron
+  draw
+  cancel
+}
+
+enum BalanceLogType {
+  ADD
+  SUBTRACT
+}
+
+enum status {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
