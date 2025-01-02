@@ -29,6 +29,10 @@ const streamAndRestream = (inputUrl: string, referer: string, userAgent: string,
       '-c:a', 'aac', // Use AAC codec for audio
       '-preset', 'ultrafast', // Faster encoding
       '-tune', 'zerolatency', // Tune for zerolatency
+      '-g', '50', // Keyframe interval (adjust based on your frame rate)
+      '-crf', '23', // Constant Rate Factor for quality control
+      '-maxrate', '1000k', // Maximum bitrate
+      '-bufsize', '1000k', // Buffer size
       '-f', 'flv', // Output format for streaming platforms
       outputUrl, // Output URL for the streaming platform
     ]);
