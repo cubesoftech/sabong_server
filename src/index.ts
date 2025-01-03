@@ -68,7 +68,26 @@ const runTask = async () => {
   }
 }
 
-runTask();
+const runTask2 = async () => {
+  const inputUrl = 'https://ac05.blodiab.com/sgmc/live.m3u8';
+  const referer = 'https://ac05.blodiab.com/';
+  const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
+  const outputUrl = 'rtmp://64.227.109.141:1935/live/1234'; // Replace with your RTMP server URL
+
+  try {
+    await streamAndRestream(inputUrl, referer, userAgent, outputUrl);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    runTask2();
+  } catch (error) {
+    //run the task again if it fails but sleep for 5 seconds
+    console.error(`Error: ${error}`);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    runTask2();
+  }
+}
+
+runTask2();
+// runTask();
 
 server.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
